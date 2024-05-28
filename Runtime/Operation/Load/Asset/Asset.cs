@@ -14,6 +14,8 @@ namespace WooAsset
         {
 
         }
+
+
         public override float progress
         {
             get
@@ -55,28 +57,18 @@ namespace WooAsset
                 InvokeComplete();
                 return;
             }
-
-            if (assetType == AssetType.Raw)
+            if (async)
             {
-                var raw = bundle.LoadRawObject(path);
-                SetResult(raw);
+                loadOp = bundle.LoadAssetAsync(path, GetAssetType(type));
+                await loadOp;
+                assets = loadOp.allAssets;
+                SetResult(loadOp.asset);
             }
             else
             {
-
-                if (async)
-                {
-                    loadOp = bundle.LoadAssetAsync(path, GetAssetType(type));
-                    await loadOp;
-                    assets = loadOp.allAssets;
-                    SetResult(loadOp.asset);
-                }
-                else
-                {
-                    var result = bundle.LoadAsset(path, GetAssetType(type));
-                    assets = result;
-                    SetResult(result[0]);
-                }
+                var result = bundle.LoadAsset(path, GetAssetType(type));
+                assets = result;
+                SetResult(result[0]);
             }
         }
         protected Type GetAssetType(Type type)
